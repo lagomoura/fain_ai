@@ -169,3 +169,4 @@ class VisualEffects:
         # Update color grading
         self.color_grading = 1.0 + np.sin(dt * 2) * 0.05  # Subtle breathing effect
 
+
