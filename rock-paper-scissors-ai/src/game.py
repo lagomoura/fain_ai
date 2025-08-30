@@ -1,8 +1,21 @@
-import random
+# New smart AI integration
+from collections import deque
+from typing import Deque, Optional
 
-def get_computer_choice():
-    """Randomly select rock, paper, or scissors for the computer."""
-    return random.choice(['rock', 'paper', 'scissors'])
+from .ai import smart_choice
+
+
+def get_computer_choice(
+    history: Optional[Deque[str]] = None,
+    difficulty: str = "medium",
+) -> str:
+    """Return the computer's move based on the selected *difficulty*.
+
+    The function remains backward-compatible: when *history* is ``None`` it
+    falls back to a random choice (equivalent to *easy*).
+    """
+
+    return smart_choice(history, difficulty)
 
 def get_winner(player_choice, computer_choice):
     """

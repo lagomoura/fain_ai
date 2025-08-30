@@ -1,9 +1,13 @@
+import argparse
+from collections import deque
 import cv2
 import mediapipe as mp
 import time
+
 from src.game import get_computer_choice, get_winner
 from src.hand_gesture import get_hand_gesture
-from src.ui import display_ui
+# Phase-1 GUI
+from src.gui import compose_frame, UIState
 from src.animations import display_winner_animation
 from src.assets import load_images
 from src.sounds import load_sounds, play_sound
@@ -22,14 +26,30 @@ mp_drawing = mp.solutions.drawing_utils
 images = load_images()
 sounds = load_sounds()
 
+# Parse CLI arguments
+parser = argparse.ArgumentParser(
+    description="Rock Paper Scissors with smart AI"
+)
+parser.add_argument(
+    "--difficulty",
+    choices=["easy", "medium", "hard"],
+    default="medium",
+    help="AI difficulty level",
+)
+
+args = parser.parse_args()
+
 # Video capture
 cap = cv2.VideoCapture(0)
 
 # Game state
-scores = {'player': 0, 'computer': 0}
-player_choice = 'unknown'
-computer_choice = 'unknown'
-winner = 'unknown'
+scores = {"player": 0, "computer": 0}
+player_choice = "unknown"
+computer_choice = "unknown"
+winner = "unknown"
+
+# History for smart AI
+player_history = deque([], maxlen=30)
 last_gesture_time = time.time()
 round_start_time = time.time()
 show_countdown = True
@@ -91,15 +111,20 @@ while cap.isOpened():
                     time.time() - last_gesture_time > 1):
                 player_choice = get_hand_gesture(hand_landmarks)
 
-                if player_choice != 'unknown':
-                    computer_choice = get_computer_choice()
+                if player_choice != "unknown":
+                    # Update history *before* predicting to let AI learn
+                    player_history.append(player_choice)
+
+                    computer_choice = get_computer_choice(
+                        player_history, args.difficulty
+                    )
                     winner = get_winner(player_choice, computer_choice)
 
                     if winner == 'player':
-                        scores['player'] += 1
+                        scores["player"] += 1
                         play_sound(sounds.get('win'))
-                    elif winner == 'computer':
-                        scores['computer'] += 1
+                    elif winner == "computer":
+                        scores["computer"] += 1
                         play_sound(sounds.get('lose'))
                     
                     display_winner_animation(image, winner)
@@ -110,13 +135,17 @@ while cap.isOpened():
 
                 last_gesture_time = time.time()
 
-    # Display the UI
-    display_ui(
-        image, player_choice, computer_choice, winner, scores, images
+    # Compose new GUI frame
+    ui_state = UIState(
+        player_choice,
+        computer_choice,
+        scores,
+        args.difficulty,
+        images,
     )
+    composed = compose_frame(image, ui_state)
 
-    # Show the image
-    cv2.imshow('Rock, Paper, Scissors', image)
+    cv2.imshow('Rock, Paper, Scissors', composed)
 
     # Break the loop when 'ESC' is pressed
     if cv2.waitKey(5) & 0xFF == 27:
