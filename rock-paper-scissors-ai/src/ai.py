@@ -69,3 +69,4 @@ def smart_choice(history: Deque[str] | None = None, difficulty: str = 'medium') 
         predicted = _predict_next_move_markov(history)
 
     return COUNTER_MOVE[predicted]
+

@@ -154,3 +154,38 @@ def _draw_hud(frame: np.ndarray, state: UIState) -> None:
         2,
         cv2.LINE_AA,
     )
+
+
+# -----------------------------------------------------------------------------
+# Backwards-compatibility shim
+# -----------------------------------------------------------------------------
+
+
+def display_ui(
+    frame: np.ndarray,
+    player_choice: str,
+    computer_choice: str,
+    winner: str,
+    scores: Dict[str, int],
+    images: Dict[str, np.ndarray],
+    *,
+    difficulty: str = "normal",
+) -> None:  # noqa: D401 – simple wrapper
+    """Deprecated wrapper kept for existing import paths.
+
+    The implementation now lives in ``src.ui``. This function simply forwards
+    the call to maintain compatibility with older code or notebooks that still
+    do ``from src.gui import display_ui``.
+    """
+
+    from .ui import display_ui as _display_ui  # local import to avoid cycles
+
+    _display_ui(
+        frame,
+        player_choice,
+        computer_choice,
+        winner,
+        scores,
+        images,
+        difficulty=difficulty,
+    )

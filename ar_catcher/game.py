@@ -54,7 +54,9 @@ class Game:
         self.spawn_interval = 0.8  # Faster spawning for more action
 
     def run(self):
-        with Camera() as cam:
+        # Use USB webcam on index 1 by default. Adjust if your system assigns a
+        # different index.
+        with Camera(src=1) as cam:
             # Prepare full-screen window before any frame is shown
             cv2.namedWindow("AR Catcher", cv2.WINDOW_NORMAL)
             cv2.setWindowProperty(
