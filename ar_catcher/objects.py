@@ -109,3 +109,12 @@ class ObjectSpawner:
             object_type=obj_type,
             score_value=obj_type.value[2]
         )
+
+    # ------------------------------------------------------------------
+    # Reinicio
+    # ------------------------------------------------------------------
+
+    def reset(self) -> None:
+        """Restablece temporizadores y probabilidad de bombas."""
+        self.difficulty_timer = 0.0
+        self.bomb_spawn_rate = 0.4

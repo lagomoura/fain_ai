@@ -146,8 +146,19 @@ class Game:
 
                 # Victory condition overlay --------------------------------------
                 if self.winner is not None:
+                    # Mostrar pantalla de victoria
                     self._show_victory_screen(frame)
-                    break
+
+                    # Pequeña pausa para que los jugadores vean el resultado
+                    cv2.imshow("AR Catcher", frame)
+                    cv2.waitKey(1500)
+
+                    # Reiniciar estado del juego y lanzar una nueva cuenta atrás
+                    self._reset_game_state()
+                    self._countdown(cam)
+
+                    # Continuar sin salir del bucle principal
+                    continue
 
                 cv2.imshow("AR Catcher", frame)
                 key = cv2.waitKey(1) & 0xFF
@@ -590,6 +601,28 @@ class Game:
 
             cv2.imshow("AR Catcher", frame)
             cv2.waitKey(800)
+
+
+    # -------------------------------------------------------------------------
+    # Reinicio de partida
+    # -------------------------------------------------------------------------
+
+    def _reset_game_state(self) -> None:
+        """Restablece todas las variables para una nueva partida."""
+        self.objects.clear()
+        self.scores = [0, 0]
+        self.winner = None
+
+        # Restablecer power-ups y combos
+        self.player_shields = [False, False]
+        self.shield_timers = [0.0, 0.0]
+        self.combo_multipliers = [1, 1]
+        self.combo_timers = [0.0, 0.0]
+
+        # Reiniciar generador de objetos
+        self.spawner.reset()
+        self.last_spawn = 0.0
+        self.game_time = 0.0
 
     def _show_victory_screen(self, frame):
         """Show the victory screen and wait for key press."""
